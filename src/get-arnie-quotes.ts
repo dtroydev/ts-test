@@ -1,10 +1,22 @@
 import { httpGet } from './mock-http-interface';
 
-// TODO define this type properly
-type TResult = any;
+// Utility Type - Generic Lookup Union for a defined key value, with others optional and undefined
+type OneOf<T> = {
+  [K in keyof T]: Pick<T, K> & Partial<Record<Exclude<keyof T, K>, undefined>>
+}[ keyof T ]
+
+type PossibleResults = {
+  'Arnie Quote': string,
+  FAILURE: string
+}
+
+type TResult = OneOf<PossibleResults>
 
 export const getArnieQuotes = async (urls : string[]) : Promise<TResult[]> => {
-  // TODO: Implement this function.
+  const responses = await Promise.all(urls.map(url => httpGet(url)));
   
-  return [];
+  return responses.map(response => {
+    const key = response.status === 200 ? 'Arnie Quote' : 'FAILURE';
+    return { [key]: JSON.parse(response.body).message } as TResult;
+  })
 };
