@@ -15,8 +15,8 @@ type TResult = OneOf<PossibleResults>
 export const getArnieQuotes = async (urls : string[]) : Promise<TResult[]> => {
   const responses = await Promise.all(urls.map(url => httpGet(url)));
   
-  return responses.map(response => {
-    const key = response.status === 200 ? 'Arnie Quote' : 'FAILURE';
-    return { [key]: JSON.parse(response.body).message } as TResult;
+  return responses.map(({ status, body }) => {
+    const key = status === 200 ? 'Arnie Quote' : 'FAILURE';
+    return { [key]: JSON.parse(body).message } as TResult;
   })
 };
